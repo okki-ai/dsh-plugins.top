@@ -14,14 +14,17 @@
 - 🔄 **每日自动同步**：打开页面自动拉取 [xiaohai-78/Top](https://github.com/xiaohai-78/Top) 最新 star 数据；社区插件由 `discover-dsh-plugins.ps1` 自动发现 `dsh-plugin` topic 并做清单校验
 - 🐋 官方 DeepSeek logo 拼豆版（`#4D6BFE` 像素风）
 
-## 部署（GitHub Pages + 自定义域名）
+## 部署（GitHub Pages + 自定义域名 + CI 自动重建）
 
 ```bash
 # 1. 创建同名仓库（统一记忆点）
-gh repo create dsh-plugins.top --public --source . --push
+#    github.com/new → Repository name: dsh-plugins.top → Public → Create repository（不要初始化 README）
+cd D:\VIMO\DSH\plugins\dsh-plugins.top
+git remote add origin git@github.com:<用户名>/dsh-plugins.top.git
+git push -u origin main
 
-# 2. 启用 Pages + 自定义域名
-#    GitHub 网页 → Settings → Pages → Source: Deploy from a branch (main, / root)
+# 2. 启用 Pages（源选 GitHub Actions，由 CI 自动部署）
+#    GitHub 网页 → Settings → Pages → Source: GitHub Actions
 #    Custom domain: dsh-plugins.top → Save → 勾选 Enforce HTTPS
 
 # 3. DNS（在你的域名注册商处，二选一）
@@ -31,6 +34,12 @@ gh repo create dsh-plugins.top --public --source . --push
 ```
 
 仓库里的 `CNAME` 文件内容为 `dsh-plugins.top`，保证自定义域名在换部署方式后依然生效。
+
+## CI（`.github/workflows/ci.yml`）
+
+- **触发**：每天 03:17 UTC（北京时间 11:17）定时 + `workflow_dispatch` 手动 + push 到 main
+- **流程**：刷新 `top-data.json`（最新 star）→ 自动发现并校验 `dsh-plugin` topic（失败不覆盖旧数据）→ 生成 `site-data.json` → 生成 `index.html` → 冒烟测试 → 自动 commit 回仓库 → 部署到 GitHub Pages
+- **推送**：CI 内使用 `GITHUB_TOKEN`（仅限本仓库，无需 SSH）；`permissions.contents: write` 已声明
 
 ## 数据与重建（可选，开发者）
 
