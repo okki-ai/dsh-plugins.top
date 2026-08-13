@@ -60,14 +60,14 @@ ok('board hidden by default', els.board.hidden === true);
 const kwEl = { getAttribute: () => '记忆', _listeners: {} };
 els.kwcloud._listeners.click({ target: { closest: () => kwEl } });
 const rowsKw = rowCount();
-ok('keyword filter (记忆) narrows list', rowsKw > 0 && rowsKw < 316);
+ok('keyword filter (记忆) narrows list', rowsKw > 0 && rowsKw < expectedTotal);
 els.kwcloud._listeners.click({ target: { closest: () => ({ getAttribute: () => '' }) } });
-ok('keyword cleared restores rows', rowCount() === 316);
+ok('keyword cleared restores rows', rowCount() === expectedTotal);
 
 // search
 els.q.value = 'memory';
 els.q._listeners.input({ target: { value: 'memory' } });
-ok('search narrows list (memory)', rowCount() > 0 && rowCount() < 316);
+ok('search narrows list (memory)', rowCount() > 0 && rowCount() < expectedTotal);
 els.q._listeners.input({ target: { value: '' } });
 
 // category filter (data-driven)
@@ -81,7 +81,8 @@ els.chips._listeners.click({ target: { closest: () => ({ getAttribute: () => '__
 // leaderboard view
 const viewBoard = { getAttribute: () => 'board', classList: { toggle() {} }, _listeners: {} };
 viewsEl._listeners.click({ target: { closest: () => viewBoard } });
-ok('board view shows top 50', (els.board.innerHTML.match(/class="brow"/g) || []).length === 50);
+const boardExpect = Math.min(50, expectedTotal);
+ok('board view shows top ' + boardExpect, (els.board.innerHTML.match(/class="brow"/g) || []).length === boardExpect);
 ok('board has rank medals', els.board.innerHTML.includes('🥇') && els.board.innerHTML.includes('⭐'));
 
 // sort Stars asc
