@@ -43,10 +43,15 @@ eval(logicBlock);
 const ok = (name, cond) => { console.log((cond ? 'PASS' : 'FAIL') + ' - ' + name); if (!cond) process.exitCode = 1; };
 const rowCount = () => (els.list.innerHTML.match(/class="row"/g) || []).length;
 
+// data-driven expectations (CI discovers new plugins daily, so counts must not be hardcoded)
+const catsAll = Object.keys(window.AWESOME.cats);
+const expectedTotal = catsAll.reduce((n, cn) => n + window.AWESOME.cats[cn].length, 0);
+const expectedChips = catsAll.length + 1;
+
 ok('whale rendered in hero', els.heroWhale.innerHTML.includes('<svg') && els.heroWhale.innerHTML.includes('#4d6bfe'));
 ok('stats rendered', els.stats.innerHTML.includes('plugins') && els.stats.innerHTML.includes('分类'));
-ok('chips rendered (10 cats + all)', els.chips.innerHTML.split('class="chip').length - 1 === 11);
-ok('list rendered rows (316)', rowCount() === 316);
+ok('chips rendered (all cats + all)', els.chips.innerHTML.split('class="chip').length - 1 === expectedChips);
+ok('list rendered all rows (' + expectedTotal + ')', rowCount() === expectedTotal);
 ok('tag cloud rendered', (els.kwcloud.innerHTML.match(/class="kwt/g) || []).length >= 15);
 ok('row kw chips shown', els.list.innerHTML.includes('class="kw"'));
 ok('board hidden by default', els.board.hidden === true);
@@ -65,10 +70,12 @@ els.q._listeners.input({ target: { value: 'memory' } });
 ok('search narrows list (memory)', rowCount() > 0 && rowCount() < 316);
 els.q._listeners.input({ target: { value: '' } });
 
-// category filter
-const chipFun = { getAttribute: () => '游戏与整活', _listeners: {} };
+// category filter (data-driven)
+const catName = '游戏与整活';
+const catExpect = window.AWESOME.cats[catName] ? window.AWESOME.cats[catName].length : 0;
+const chipFun = { getAttribute: () => catName, _listeners: {} };
 els.chips._listeners.click({ target: { closest: () => chipFun } });
-ok('category filter (游戏与整活 = 20)', rowCount() === 20);
+ok('category filter (' + catName + ' = ' + catExpect + ')', rowCount() === catExpect);
 els.chips._listeners.click({ target: { closest: () => ({ getAttribute: () => '__all__' }) } });
 
 // leaderboard view
@@ -80,5 +87,5 @@ ok('board has rank medals', els.board.innerHTML.includes('🥇') && els.board.in
 // sort Stars asc
 const sortAsc = { getAttribute: () => 'starsAsc', classList: { toggle() {} }, _listeners: {} };
 sortEl._listeners.click({ target: { closest: () => sortAsc } });
-ok('sort starsAsc still renders rows', rowCount() === 316);
+ok('sort starsAsc still renders rows', rowCount() === expectedTotal);
 console.log('done');
