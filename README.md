@@ -2,7 +2,7 @@
 
 **DeepSeek Harness 插件精选站** —— 搜索、浏览、排行 DSH 社区插件。
 
-> 线上地址：**https://dsh-plugins.top**（GitHub Pages 免费托管 + 自定义域名）
+> 线上地址：https://dsh-plugins.top（GitHub Pages 免费托管 + 自定义域名）
 
 ## 功能
 
